@@ -12,6 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install CocoaPods dependencies
+        run: |
+          gem install cocoapods
+          pod install
+        # Удалите этот шаг если не используете CocoaPods
+
       - name: Show Xcode version
         run: xcodebuild -version
 
@@ -22,18 +28,13 @@ jobs:
           -scheme Blank \
           -configuration Release \
           -archivePath build/Blank.xcarchive \
+          CODE_SIGN_IDENTITY="-" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
           archive
 
-      - name: Export IPA
-        run: |
-          xcodebuild \
-          -exportArchive \
-          -archivePath build/Blank.xcarchive \
-          -exportPath build \
-          -exportOptionsPlist ExportOptions.plist
-
-      - name: Upload IPA
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-ipa
-          path: build
+          name: ios-archive
+          path: build/Blank.xcarchive
