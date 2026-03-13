@@ -1,41 +1,39 @@
 name: Build iOS IPA
 
 on:
-push:
-branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
-build:
-runs-on: macos-latest
+  build:
+    runs-on: macos-latest
 
-```
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  - name: Show Xcode version
-    run: xcodebuild -version
+      - name: Show Xcode version
+        run: xcodebuild -version
 
-  - name: Build archive
-    run: |
-      xcodebuild \
-      -project Blank.xcodeproj \
-      -scheme Blank \
-      -configuration Release \
-      -archivePath build/Blank.xcarchive \
-      archive
+      - name: Build archive
+        run: |
+          xcodebuild \
+          -project Blank.xcodeproj \
+          -scheme Blank \
+          -configuration Release \
+          -archivePath build/Blank.xcarchive \
+          archive
 
-  - name: Export IPA
-    run: |
-      xcodebuild \
-      -exportArchive \
-      -archivePath build/Blank.xcarchive \
-      -exportPath build \
-      -allowProvisioningUpdates
+      - name: Export IPA
+        run: |
+          xcodebuild \
+          -exportArchive \
+          -archivePath build/Blank.xcarchive \
+          -exportPath build \
+          -exportOptionsPlist ExportOptions.plist
 
-  - name: Upload IPA
-    uses: actions/upload-artifact@v4
-    with:
-      name: ios-ipa
-      path: build
-```
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: build
