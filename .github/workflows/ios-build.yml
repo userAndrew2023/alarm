@@ -1,34 +1,55 @@
 name: Build iOS IPA
 
 on:
-  push:
-    branches: [ main ]
+push:
+branches: [ main ]
 
 jobs:
-  build:
-    runs-on: macos-latest
+build:
+runs-on: macos-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+  - name: Show Xcode version
+    run: xcodebuild -version
 
-      - name: Build archive
-        run: |
-          xcodebuild \
-          -project Blank.xcodeproj \
-          -scheme Blank \
-          -configuration Release \
-          -archivePath build/Blank.xcarchive \
-          CODE_SIGN_IDENTITY="-" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          archive
+  - name: Build archive
+    run: |
+      xcodebuild \
+      -project Blank.xcodeproj \
+      -scheme Blank \
+      -configuration Release \
+      -archivePath build/Blank.xcarchive \
+      CODE_SIGN_IDENTITY="" \
+      CODE_SIGNING_REQUIRED=NO \
+      CODE_SIGNING_ALLOWED=NO \
+      archive
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-archive
-          path: build/Blank.xcarchive
+  - name: Create ExportOptions.plist
+    run: |
+      cat <<EOF > ExportOptions.plist
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>method</key>
+          <string>development</string>
+      </dict>
+      </plist>
+      EOF
+
+  - name: Export IPA
+    run: |
+      xcodebuild \
+      -exportArchive \
+      -archivePath build/Blank.xcarchive \
+      -exportOptionsPlist ExportOptions.plist \
+      -exportPath build
+
+  - name: Upload IPA
+    uses: actions/upload-artifact@v4
+    with:
+      name: ios-ipa
+      path: build/*.ipa
