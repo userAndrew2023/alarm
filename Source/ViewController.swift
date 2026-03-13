@@ -1,28 +1,33 @@
-//
-//  ViewController.swift
-//
-//  Created by Devin Ross on 2/4/15.
-//
-//
-
 import UIKit
-import pop
-import curry
+import UserNotifications
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor.white
-        self.view.backgroundColor = UIColor.random()
-        
-//        let hello = TKGradientView(frame: CGRectMake(0, 0, 320, 320))
-//        
-//        let pop = POPSpringAnimation(propertyNamed: kPOPLayerPositionY)
-		
-        
+
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            print("permission:", granted)
+        }
+
+        sendAlert()
     }
 
+    func sendAlert() {
 
+        let content = UNMutableNotificationContent()
+        content.title = "⚠️ ВНИМАНИЕ"
+        content.body = "Emergency alert"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("alarm.wav"))
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: "alert",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request)
+    }
 }
-
